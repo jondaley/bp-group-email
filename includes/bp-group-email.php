@@ -32,7 +32,7 @@ class BP_Groupemail_Extension extends BP_Group_Extension {
   
   function display( $group_id = NULL ) {
 	/* Use this function to display the actual content of your group extension when the nav item is selected */
-	global $wpdb, $bp;
+	global $bp;
     
     $url = untrailingslashit( bp_get_group_permalink( $bp->groups->current_group ) ) . '/email/';
     
@@ -84,22 +84,19 @@ class BP_Groupemail_Extension extends BP_Group_Extension {
 	function edit_screen_save($group_id = NULL) {}
 	function widget_display() {}
 
+    // clean up the body: remove disallowed HTML tags, and close any HTML tags that were left open
     function cleanBody($text){
-      return strip_tags(stripslashes(trim($text)));
+      return force_balance_tags(wp_kses(stripslashes(trim($text)), 'data'));
     }
     
 	function bp_group_email_get_capabilities() {
-      //check if user is admin or moderator
-      if ( bp_group_is_admin() || bp_group_is_mod() ) {  
+      if(bp_group_is_admin() || bp_group_is_mod())
         return true;
-      } else {
-        return false;
-      }
+      return false;
     }
     
-    //send the email
     function bp_group_email_send() {
-      global $wpdb, $current_user, $bp;
+      global $bp;
       
       $email_capabilities = $this->bp_group_email_get_capabilities();
       
@@ -163,9 +160,10 @@ class BP_Groupemail_Extension extends BP_Group_Extension {
 
     	  // Send it
     	  wp_mail( $to, $email_subject, $message );
-
     	  unset( $message, $to );
+
     	  $email_count++;
+          break;
     	}
         
         //show success message
