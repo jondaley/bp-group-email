@@ -40,7 +40,7 @@ class BP_Groupemail_Extension extends BP_Group_Extension {
 		$this->slug = 'email';
 
 		//$this->create_step_position = 21;
-		//$this->nav_item_position = 35;
+		$this->nav_item_position = 75;
 		$this->enable_nav_item = $this->bp_group_email_get_capabilities();
 	}
   
