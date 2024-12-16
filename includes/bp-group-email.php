@@ -154,8 +154,11 @@ class BP_Groupemail_Extension extends BP_Group_Extension {
           
     	  $message .= sprintf( __( 'To unsubscribe from these emails please log in and go to: %s', 'groupemail' ), $settings_link );
 
-    	  // Send it
-    	  wp_mail( $to, $email_subject, $message );
+          // set to true to actually mail, otherwise just output debug info
+          if(true)
+    	    wp_mail( $to, $email_subject, $message );
+          else
+            debugLog(array($to, $email_subject, $message));
     	  unset( $message, $to );
 
     	  $email_count++;
