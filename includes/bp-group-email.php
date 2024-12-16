@@ -4,32 +4,19 @@
  */
 
 //------------------------------------------------------------------------//
-
 //---Config---------------------------------------------------------------//
-
 //------------------------------------------------------------------------//
 
-
 //------------------------------------------------------------------------//
-
 //---Hook-----------------------------------------------------------------//
-
 //------------------------------------------------------------------------//
-
-
 add_action( 'groups_screen_notification_settings', 'bp_group_email_notification_settings' );
 
 //------------------------------------------------------------------------//
-
 //---Functions------------------------------------------------------------//
-
 //------------------------------------------------------------------------//
 
-
-
-//extend the group
 class BP_Groupemail_Extension extends BP_Group_Extension {
-  
   var $visibility = 'private'; // 'public' will show your extension to non-group members, 'private' means you have to be a member of the group to view your extension.
   var $enable_create_step = false; // If your extension does not need a creation step, set this to false
   //var $enable_nav_item = false; // If your extension does not need a navigation item, set this to false
@@ -39,7 +26,6 @@ class BP_Groupemail_Extension extends BP_Group_Extension {
 	$this->name = __( 'Send Email', 'groupemail' );
 	$this->slug = 'email';
 
-	//$this->create_step_position = 21;
 	$this->nav_item_position = 75;
 	$this->enable_nav_item = $this->bp_group_email_get_capabilities();
   }
@@ -63,7 +49,7 @@ class BP_Groupemail_Extension extends BP_Group_Extension {
     
     if (!$email_success) {
       $email_subject = strip_tags(stripslashes(trim(@$_POST['email_subject'])));
-      $email_text = strip_tags(stripslashes(trim(@$_POST['email_text'])));
+      $email_text = $this->cleanBody($_POST['email_text']);
     } else {
 	  $email_subject = '';
       $email_text = '';
@@ -78,9 +64,7 @@ class BP_Groupemail_Extension extends BP_Group_Extension {
   	<label for="email_subject"><?php _e('Subject', 'groupemail'); ?> *</label>
   	<input name="email_subject" id="email_subject" value="<?php echo $email_subject; ?>" type="text">
   	
-  	<label for="email_text"><?php _e('Email Text', 'groupemail'); ?> *
-      <small><?php _e('(No HTML Allowed)', 'groupemail'); ?></small></p>
-    </label>
+  	<label for="email_text"><?php _e('Email Text', 'groupemail'); ?> *</label>
   	<textarea name="email_text" id="email_text" rows="10"><?php echo $email_text; ?></textarea>
   	
     <input name="send_email" value="1" type="hidden">
@@ -99,7 +83,11 @@ class BP_Groupemail_Extension extends BP_Group_Extension {
 	function edit_screen($group_id = NULL) {}
 	function edit_screen_save($group_id = NULL) {}
 	function widget_display() {}
-	
+
+    function cleanBody($text){
+      return strip_tags(stripslashes(trim($text)));
+    }
+    
 	function bp_group_email_get_capabilities() {
       //check if user is admin or moderator
       if ( bp_group_is_admin() || bp_group_is_mod() ) {  
@@ -136,7 +124,7 @@ class BP_Groupemail_Extension extends BP_Group_Extension {
           return false;
         }
         
-        $email_text = strip_tags(stripslashes(trim($_POST['email_text'])));
+        $email_text = $this->cleanBody($_POST['email_text']);
         
         //check that required title isset after filtering
         if (empty($email_text)) {
@@ -192,7 +180,6 @@ class BP_Groupemail_Extension extends BP_Group_Extension {
     
     }
     bp_register_group_extension( 'BP_Groupemail_Extension' );
-
 
     //------------------------------------------------------------------------//
     //---Output Functions-----------------------------------------------------//
