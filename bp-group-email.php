@@ -36,24 +36,3 @@ function bp_group_email_init() {
 	require_once( dirname( __FILE__ ) . '/includes/bp-group-email.php' );
 }
 add_action( 'bp_init', 'bp_group_email_init' );
-
-function bp_group_email_localization() {
-  // Load up the localization file if we're using WordPress in a different language
-  // Place it in this plugin's "languages" folder and name it "groupemail-[value in wp-config].mo"
-  load_plugin_textdomain( 'groupemail', FALSE, '/bp-group-email/languages' );
-}
-add_action( 'plugins_loaded', 'bp_group_email_localization' );
-
-//load dashboard notice
-global $wpmudev_notices;
-$wpmudev_notices[] = array(
-  'id'      => 110,
-  'name'    => 'BuddyPress Group Email',
-  'screens' => array(
-	'toplevel_page_bp-groups',
-	'settings_page_bp-components',
-	'toplevel_page_bp-groups-network',
-	'settings_page_bp-components-network'
-  )
-);
-include_once( dirname( __FILE__ ) . '/dash-notice/wpmudev-dash-notification.php' );
