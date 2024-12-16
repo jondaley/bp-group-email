@@ -27,7 +27,7 @@ class BP_Groupemail_Extension extends BP_Group_Extension {
 	$this->slug = 'email';
 
 	$this->nav_item_position = 75;
-	$this->enable_nav_item = $this->bp_group_email_get_capabilities();
+	$this->enable_nav_item = $this->get_capabilities();
   }
   
   function display( $group_id = NULL ) {
@@ -36,20 +36,18 @@ class BP_Groupemail_Extension extends BP_Group_Extension {
     
     $url = untrailingslashit( bp_get_group_permalink( $bp->groups->current_group ) ) . '/email/';
     
-    $email_capabilities = $this->bp_group_email_get_capabilities();
-
     //don't display widget if no capabilities
-    if (!$email_capabilities) {
+    if (!$this->get_capabilities()) {
       bp_core_add_message( __("You don't have permission to send emails", 'groupemail'), 'error' );
       do_action( 'template_notices' );
       return false;
     }
     
-    $email_success = $this->bp_group_email_send();
+    $email_success = $this->send();
     
     if (!$email_success) {
       $email_subject = strip_tags(stripslashes(trim(@$_POST['email_subject'])));
-      $email_text = $this->cleanBody($_POST['email_text']);
+      $email_text = $this->clean_body($_POST['email_text']);
     } else {
 	  $email_subject = '';
       $email_text = '';
@@ -85,20 +83,18 @@ class BP_Groupemail_Extension extends BP_Group_Extension {
 	function widget_display() {}
 
     // clean up the body: remove disallowed HTML tags, and close any HTML tags that were left open
-    function cleanBody($text){
+    function clean_body($text){
       return force_balance_tags(wp_kses(stripslashes(trim($text)), 'data'));
     }
     
-	function bp_group_email_get_capabilities() {
+	function get_capabilities() {
       if(bp_group_is_admin() || bp_group_is_mod())
         return true;
       return false;
     }
     
-    function bp_group_email_send() {
+    function send() {
       global $bp;
-      
-      $email_capabilities = $this->bp_group_email_get_capabilities();
       
       if (isset($_POST['send_email'])) {
         if (!wp_verify_nonce($_REQUEST['_wpnonce'], 'bp_group_email')) {
@@ -107,7 +103,7 @@ class BP_Groupemail_Extension extends BP_Group_Extension {
         }
         
         //reject unqualified users
-        if (!$email_capabilities) {
+        if (!$this->get_capabilities()) {
           bp_core_add_message( __("You don't have permission to send emails", 'groupemail'), 'error' );
           return false;
         }
@@ -121,7 +117,7 @@ class BP_Groupemail_Extension extends BP_Group_Extension {
           return false;
         }
         
-        $email_text = $this->cleanBody($_POST['email_text']);
+        $email_text = $this->clean_body($_POST['email_text']);
         
         //check that required title isset after filtering
         if (empty($email_text)) {
